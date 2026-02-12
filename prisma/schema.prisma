@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id                String              @id @default(uuid())
+  email             String              @unique
+  role              String              @default("USER") // "ADMIN" or "USER"
+  createdAt         DateTime            @default(now())
+  listeningProgress ListeningProgress[]
+  voiceMessages     VoiceMessage[]
+  answers           Answer[]
+}
+
+// REMOVED Course model
+
+model Week {
+  id        String       @id @default(cuid())
+  title     String
+  order     Int
+  createdAt DateTime     @default(now())
+  tracks    AudioTrack[]
+  questions Question[]   // New relation
+  courseId  String?      // keeping for now if we revert, but unused
+}
+
+model AudioTrack {
+  id        String   @id @default(cuid())
+  title     String
+  fileUrl   String
+  createdAt DateTime @default(now())
+  
+  weekId    String?
+  week      Week?    @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  
+  // New ordering field
+  order     Int      @default(0)
+
+  // relations
+  voiceMessages VoiceMessage[]
+  progress      ListeningProgress[]
+  // Questions are no longer strictly child of AudioTrack, but we might want to keep a link?
+  // User said "questions doesnt depend on the voice track".
+  // So we remove the relation or make it optional/loose?
+  // Let's remove the strict relation for now or keep it optional if they WANT to link it.
+  // But for the "Week Flow", we use WeekId.
+}
+
+model Question {
+  id           String   @id @default(cuid())
+  text         String
+  createdAt    DateTime @default(now())
+  
+  // Link to Week directly
+  weekId       String?
+  week         Week?    @relation(fields: [weekId], references: [id], onDelete: Cascade)
+
+  // Ordering in the week
+  order        Int      @default(0)
+
+  // Answers
+  answers      Answer[]
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  text       String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, questionId])
+}
+
+model ListeningProgress {
+  id             String     @id @default(uuid())
+  userId         String
+  audioTrackId   String
+  progress       Float      @default(0)
+  completed      Boolean    @default(false)
+  listenCount    Int        @default(0)
+  lastListenedAt DateTime   @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  audioTrack AudioTrack @relation(fields: [audioTrackId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, audioTrackId])
+}
+
+model VoiceMessage {
+  id           String   @id @default(uuid())
+  userId       String
+  audioTrackId String?  // Specific context
+  fileUrl      String
+  viewed       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  user       User        @relation(fields: [userId], references: [id])
+  audioTrack AudioTrack? @relation(fields: [audioTrackId], references: [id], onDelete: SetNull)
+}
