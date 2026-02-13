@@ -55,14 +55,14 @@ async function main() {
     console.log('3. Verifying Data Fetch...');
     const tracksWithProgress = await prisma.audioTrack.findMany({
         include: {
-            listeningProgress: {
+            progress: {
                 where: { userId: user.id }
             }
         }
     });
 
     const fetchedTrack = tracksWithProgress.find(t => t.id === track.id);
-    if (fetchedTrack && fetchedTrack.listeningProgress[0]?.progress === 50) {
+    if (fetchedTrack && fetchedTrack.progress[0]?.progress === 50) {
         console.log('  Fetch verification: PASS');
     } else {
         console.error('  Fetch verification: FAIL');
