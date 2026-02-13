@@ -84,16 +84,16 @@ export default function GlobalPlayer() {
     if (!currentTrack) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 p-4 shadow-2xl text-white">
-            <div className="max-w-4xl mx-auto flex items-center gap-4">
-                <div className="flex-1">
-                    <h3 className="font-bold text-lg">{currentTrack.title}</h3>
-                    <p className="text-sm text-slate-400">Playing Now</p>
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 p-2 md:p-4 shadow-2xl text-white z-50">
+            <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-2 md:gap-4">
+                <div className="w-full md:flex-1 text-center md:text-left truncate px-2">
+                    <h3 className="font-bold text-base md:text-lg truncate">{currentTrack.title}</h3>
+                    <p className="text-xs md:text-sm text-slate-400">Playing Now</p>
                 </div>
                 <audio
                     ref={audioRef}
                     controls
-                    className="w-full max-w-md"
+                    className="w-full md:max-w-md h-10 md:h-12"
                     onTimeUpdate={handleTimeUpdate}
                     onPause={handlePause}
                     onEnded={handleEnded}

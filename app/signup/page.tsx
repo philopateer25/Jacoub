@@ -40,7 +40,7 @@ export default function SignupPage() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-slate-900 text-white">
+        <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 bg-slate-900 text-white">
             <div className="bg-slate-800 p-8 rounded-lg shadow-xl w-full max-w-md border border-slate-700">
                 <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
 

@@ -119,25 +119,25 @@ export default function UserDashboard() {
     };
 
     return (
-        <div className="p-8 pb-32 max-w-5xl mx-auto text-white">
-            <h1 className="text-3xl font-bold mb-8">Jacoub Learning Path</h1>
+        <div className="p-4 md:p-8 pb-32 max-w-5xl mx-auto text-white">
+            <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Jacoub Learning Path</h1>
 
             <div className="space-y-4">
                 {loading ? <p>Loading content...</p> : weeks.map(week => (
                     <div key={week.id} className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
                         <button
                             onClick={() => toggleWeek(week.id)}
-                            className="w-full text-left p-6 flex justify-between items-center bg-slate-800 hover:bg-slate-750"
+                            className="w-full text-left p-4 md:p-6 flex justify-between items-center bg-slate-800 hover:bg-slate-750"
                         >
                             <div>
-                                <h2 className="text-xl font-bold text-blue-400">Week {week.order}: {week.title}</h2>
+                                <h2 className="text-lg md:text-xl font-bold text-blue-400">Week {week.order}: {week.title}</h2>
                                 <p className="text-slate-400 text-sm">{week.content?.length || 0} Items</p>
                             </div>
                             <span className="text-2xl">{expandedWeekId === week.id ? '−' : '+'}</span>
                         </button>
 
                         {expandedWeekId === week.id && (
-                            <div className="p-6 pt-0 border-t border-slate-700 bg-slate-900/50">
+                            <div className="p-4 md:p-6 pt-0 border-t border-slate-700 bg-slate-900/50">
                                 <div className="space-y-6 mt-6">
                                     {(!week.content || week.content.length === 0) && <p className="text-slate-500 text-sm">No content yet.</p>}
 
@@ -156,14 +156,14 @@ export default function UserDashboard() {
                                                             title: item.title || 'Unknown Track',
                                                             fileUrl: item.fileUrl || ''
                                                         })}
-                                                        className="cursor-pointer flex items-center justify-between mb-4"
+                                                        className="cursor-pointer flex items-center justify-between mb-4 gap-4"
                                                     >
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isPlaying ? 'bg-green-500' : 'bg-blue-600'}`}>
+                                                        <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                                                            <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isPlaying ? 'bg-green-500' : 'bg-blue-600'}`}>
                                                                 {isPlaying ? '⏸' : '▶'}
                                                             </div>
-                                                            <div>
-                                                                <div className="font-bold text-lg">{item.title}</div>
+                                                            <div className="min-w-0">
+                                                                <div className="font-bold text-base md:text-lg truncate">{item.title}</div>
                                                                 {progress && (
                                                                     <div className="text-xs text-slate-400">
                                                                         {isCompleted ? <span className="text-green-400">Completed</span> : <span>{Math.round(progress.currentTime)}s listened</span>}
@@ -171,7 +171,7 @@ export default function UserDashboard() {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        {isCompleted && <span className="text-green-500 text-xl font-bold">✓</span>}
+                                                        {isCompleted && <span className="flex-shrink-0 text-green-500 text-xl font-bold">✓</span>}
                                                     </div>
 
                                                     {/* Voice Recorder (Contextual) */}
@@ -186,24 +186,27 @@ export default function UserDashboard() {
                                             );
                                         } else if (item.type === 'QUESTION') {
                                             return (
-                                                <div key={item.id} className="bg-slate-800 border border-blue-900/50 rounded-lg p-6 hover:border-blue-700 transition-colors">
-                                                    <div className="flex gap-4">
-                                                        <div className="text-blue-400 font-bold text-xl">?</div>
+                                                <div key={item.id} className="bg-slate-800 border border-blue-900/50 rounded-lg p-4 md:p-6 hover:border-blue-700 transition-colors">
+                                                    <div className="flex flex-col md:flex-row gap-4">
+                                                        <div className="hidden md:block text-blue-400 font-bold text-xl">?</div>
                                                         <div className="flex-1 space-y-3">
-                                                            <p className="text-lg font-medium text-slate-200">{item.text}</p>
-                                                            <div className="flex gap-2">
+                                                            <div className="flex gap-2 items-start">
+                                                                <div className="md:hidden text-blue-400 font-bold text-lg">?</div>
+                                                                <p className="text-base md:text-lg font-medium text-slate-200">{item.text}</p>
+                                                            </div>
+                                                            <div className="flex flex-col md:flex-row gap-2">
                                                                 <input
                                                                     disabled={submitted[item.id]}
                                                                     value={answers[item.id] || ''}
                                                                     onChange={e => handleAnswerChange(item.id, e.target.value)}
-                                                                    className="flex-1 bg-slate-900 border border-slate-600 rounded px-4 py-2 text-sm focus:border-blue-500 outline-none"
+                                                                    className="flex-1 bg-slate-900 border border-slate-600 rounded px-4 py-2 text-sm focus:border-blue-500 outline-none w-full"
                                                                     placeholder="Type your answer here..."
                                                                 />
                                                                 {!submitted[item.id] ? (
                                                                     <button
                                                                         onClick={() => submitAnswer(item.id)}
                                                                         disabled={submitting[item.id]}
-                                                                        className="bg-blue-600 px-6 py-2 rounded text-sm font-bold hover:bg-blue-700 disabled:opacity-50"
+                                                                        className="bg-blue-600 px-6 py-2 rounded text-sm font-bold hover:bg-blue-700 disabled:opacity-50 w-full md:w-auto"
                                                                     >
                                                                         {submitting[item.id] ? '...' : 'Submit'}
                                                                     </button>

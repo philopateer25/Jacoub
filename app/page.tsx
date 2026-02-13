@@ -53,7 +53,7 @@ export default function Home() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-slate-900 text-white">
+        <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 bg-slate-900 text-white">
             <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
                 <h1 className="text-4xl font-bold text-center w-full mb-10">Jacoub</h1>
             </div>
