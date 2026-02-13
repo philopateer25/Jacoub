@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
         const tracks = await prisma.audioTrack.findMany({
             include: userId
                 ? {
-                    listeningProgress: {
+                    progress: {
                         where: {
                             userId: userId,
                         },
@@ -22,14 +22,19 @@ export async function GET(req: NextRequest) {
         });
 
         const formattedTracks = tracks.map((track) => {
-            const progress = track.listeningProgress?.[0]; // specific to this user
+            // @ts-ignore - handled by include above
+            const userProgress = track.progress?.[0];
+
+            // Create a clean object without the array
+            // detailed below
+            const { progress: _, ...trackData } = track as any;
+
             return {
-                ...track,
-                listeningProgress: undefined, // remove array
-                progress: progress ? {
-                    completed: progress.completed,
-                    currentTime: progress.progress,
-                    listenCount: progress.listenCount
+                ...trackData,
+                progress: userProgress ? {
+                    completed: userProgress.completed,
+                    currentTime: userProgress.progress,
+                    listenCount: userProgress.listenCount
                 } : null
             };
         });
