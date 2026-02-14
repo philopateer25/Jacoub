@@ -41,7 +41,13 @@ export async function GET() {
                     select: { email: true, id: true },
                 },
                 audioTrack: {
-                    select: { title: true, id: true },
+                    select: {
+                        title: true,
+                        id: true,
+                        week: {
+                            select: { title: true, order: true }
+                        }
+                    },
                 },
             },
             orderBy: { createdAt: 'desc' },
