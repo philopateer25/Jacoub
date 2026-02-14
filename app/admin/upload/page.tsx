@@ -42,28 +42,43 @@ export default function UploadPage() {
             if (uploadType === 'TRACK') {
                 if (!title) return alert('Title is required');
 
-                const formData = new FormData();
-                formData.append('title', title);
-                formData.append('weekId', selectedWeek);
-                formData.append('type', trackSource);
+                let finalUrl = '';
 
+                // 1. Upload File if AUDIO
                 if (trackSource === 'AUDIO') {
                     if (!file) return alert('File required for audio');
-                    formData.append('file', file);
+
+                    // Client-side upload to Vercel Blob
+                    const { upload } = await import('@vercel/blob/client');
+
+                    const newBlob = await upload(file.name, file, {
+                        access: 'public',
+                        handleUploadUrl: '/api/upload/token',
+                    });
+
+                    finalUrl = newBlob.url;
                 } else {
                     if (!url) return alert('URL required for YouTube');
-                    formData.append('url', url);
+                    finalUrl = url;
                 }
 
+                // 2. Save Metadata to DB
                 const res = await fetch('/api/upload', {
                     method: 'POST',
-                    body: formData,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        weekId: selectedWeek,
+                        type: trackSource, // AUDIO or YOUTUBE
+                        url: finalUrl
+                    }),
                 });
 
                 if (res.ok) {
                     alert('Track uploaded successfully!');
                     setTitle('');
                     setFile(null);
+                    setUrl('');
                 } else {
                     alert('Upload failed');
                 }
@@ -81,7 +96,7 @@ export default function UploadPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         weekId: selectedWeek,
-                        text: questions // API handles array 
+                        text: questions
                     }),
                 });
 
@@ -94,7 +109,7 @@ export default function UploadPage() {
             }
         } catch (error) {
             console.error(error);
-            alert('Error occurred');
+            alert('Error occurred: ' + (error as Error).message);
         } finally {
             setIsUploading(false);
         }
