@@ -51,10 +51,12 @@ export default function UploadPage() {
                     // Client-side upload to Vercel Blob
                     const { upload } = await import('@vercel/blob/client');
 
-                    const newBlob = await upload(file.name, file, {
+                    // Generate unique filename to avoid "Blob already exists" error
+                    const uniqueFilename = `${Date.now()}-${file.name}`;
+
+                    const newBlob = await upload(uniqueFilename, file, {
                         access: 'public',
                         handleUploadUrl: '/api/upload/token',
-                        addRandomSuffix: true, // Fix: Prevent conflict if file exists
                     });
 
                     finalUrl = newBlob.url;
