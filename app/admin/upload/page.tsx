@@ -54,6 +54,7 @@ export default function UploadPage() {
                     const newBlob = await upload(file.name, file, {
                         access: 'public',
                         handleUploadUrl: '/api/upload/token',
+                        addRandomSuffix: true, // Fix: Prevent conflict if file exists
                     });
 
                     finalUrl = newBlob.url;
