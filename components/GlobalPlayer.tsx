@@ -6,10 +6,9 @@ import ReactPlayer from 'react-player';
 
 export default function GlobalPlayer() {
     const { currentTrack } = usePlayer();
-    const playerRef = useRef<ReactPlayer>(null);
+    const playerRef = useRef<any>(null);
     const [progress, setProgress] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
-    const [isThinking, setIsThinking] = useState(false); // For buffering state
 
     // When track changes, reset and play
     useEffect(() => {
