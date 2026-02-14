@@ -10,6 +10,7 @@ interface ContentItem {
     type: 'TRACK' | 'QUESTION';
     title?: string;      // For tracks
     fileUrl?: string;    // For tracks
+    mediaType?: 'AUDIO' | 'YOUTUBE';
     text?: string;       // For questions
     order: number;
 }
