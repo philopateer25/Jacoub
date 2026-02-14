@@ -43,3 +43,27 @@ export async function DELETE(
         );
     }
 }
+
+export async function PATCH(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+        const body = await req.json();
+        const { viewed } = body;
+
+        const message = await prisma.voiceMessage.update({
+            where: { id },
+            data: { viewed },
+        });
+
+        return NextResponse.json(message);
+    } catch (error) {
+        console.error('Error updating message:', error);
+        return NextResponse.json(
+            { error: 'Internal Server Error' },
+            { status: 500 }
+        );
+    }
+}

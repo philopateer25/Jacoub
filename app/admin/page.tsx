@@ -9,6 +9,7 @@ interface VoiceMessage {
     user: {
         email: string;
     };
+    viewed: boolean;
     audioTrack?: {
         title: string;
         week?: {
@@ -164,14 +165,15 @@ export default function AdminDashboard() {
                                                         </button>
                                                     </div>
                                                 </div>
+                                            ))}
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
-                                </div>
-                            );
+                                    );
                         })}
-                    </div>
-                )}
+                                </div>
+                            )
+                        }
             </section>
         </div>
     );
