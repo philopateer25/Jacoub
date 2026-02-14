@@ -22,6 +22,31 @@ interface VoiceMessage {
 export default function AdminDashboard() {
     const [messages, setMessages] = useState<VoiceMessage[]>([]);
     const [loading, setLoading] = useState(true);
+    const [expandedWeeks, setExpandedWeeks] = useState<Record<string, boolean>>({});
+
+    const toggleWeek = (weekKey: string) => {
+        setExpandedWeeks(prev => ({
+            ...prev,
+            [weekKey]: !prev[weekKey]
+        }));
+    };
+
+    const markAsViewed = async (message: VoiceMessage) => {
+        if (message.viewed) return;
+
+        // Optimistic update
+        setMessages(prev => prev.map(m => m.id === message.id ? { ...m, viewed: true } : m));
+
+        try {
+            await fetch(`/api/messages/${message.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ viewed: true })
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
         fetch('/api/messages')
@@ -117,11 +142,21 @@ export default function AdminDashboard() {
                     <div className="space-y-8">
                         {sortedWeekKeys.map(weekKey => {
                             const weekMessages = groupedMessages[weekKey];
+                            const isExpanded = expandedWeeks[weekKey] !== false; // Default true
+                            const unreadInWeek = weekMessages.filter(m => !m.viewed).length;
+
                             return (
                                 <div key={weekKey} className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
-                                    <div className="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
-                                        <h3 className="font-bold text-lg text-blue-400">{weekKey}</h3>
-                                        <div className="flex items-center gap-4">
+                                    <div
+                                        className="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center cursor-pointer hover:bg-slate-850 transition-colors"
+                                        onClick={() => toggleWeek(weekKey)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-slate-400 font-mono">{isExpanded ? '▼' : '▶'}</span>
+                                            <h3 className="font-bold text-lg text-blue-400">{weekKey}</h3>
+                                            {unreadInWeek > 0 && <span className="bg-blue-600 text-xs px-2 py-0.5 rounded-full text-white">{unreadInWeek} new</span>}
+                                        </div>
+                                        <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
                                             <span className="text-sm text-slate-400">{weekMessages.length} messages</span>
                                             <button
                                                 onClick={() => handleBatchDelete(weekMessages.map(m => m.id))}
@@ -131,50 +166,59 @@ export default function AdminDashboard() {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="divide-y divide-slate-700">
-                                        {weekMessages.map((msg) => (
-                                            <div key={msg.id} className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-slate-700/50 transition-colors">
-                                                <div className="flex-1">
-                                                    <h4 className="font-bold text-lg text-white">{msg.user.email}</h4>
-                                                    <div className="text-sm text-slate-400 mt-1">
-                                                        {new Date(msg.createdAt).toLocaleString()}
-                                                    </div>
-                                                    {msg.audioTrack && (
-                                                        <div className="text-xs text-slate-500 mt-1 bg-slate-900/50 inline-block px-2 py-1 rounded">
-                                                            Re: {msg.audioTrack.title}
+
+                                    {isExpanded && (
+                                        <div className="divide-y divide-slate-700">
+                                            {weekMessages.map((msg) => (
+                                                <div key={msg.id} className={`p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors ${msg.viewed ? 'bg-slate-800' : 'bg-slate-800/80 border-l-4 border-l-blue-500'}`}>
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <h4 className={`text-lg ${msg.viewed ? 'font-normal text-slate-300' : 'font-bold text-white'}`}>{msg.user.email}</h4>
+                                                            {!msg.viewed && <span className="text-xs bg-blue-500 text-white px-1.5 rounded">NEW</span>}
                                                         </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col gap-2 w-full md:w-auto">
-                                                    <audio controls src={msg.fileUrl} className="h-10 w-full md:w-64" />
-                                                    <div className="flex gap-2 justify-end">
-                                                        <a
-                                                            href={msg.fileUrl}
-                                                            download={`voice-message-${msg.id}.webm`}
-                                                            className="bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded text-sm font-bold text-center transition-colors flex-1"
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                        >
-                                                            Download
-                                                        </a>
-                                                        <button
-                                                            onClick={() => handleDelete(msg.id)}
-                                                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm font-bold transition-colors flex-1"
-                                                        >
-                                                            Delete
-                                                        </button>
+                                                        <div className="text-sm text-slate-400 mt-1">
+                                                            {new Date(msg.createdAt).toLocaleString()}
+                                                        </div>
+                                                        {msg.audioTrack && (
+                                                            <div className="text-xs text-slate-500 mt-1 bg-slate-900/50 inline-block px-2 py-1 rounded">
+                                                                Re: {msg.audioTrack.title}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col gap-2 w-full md:w-auto">
+                                                        <audio
+                                                            controls
+                                                            src={msg.fileUrl}
+                                                            className="h-10 w-full md:w-64"
+                                                            onPlay={() => markAsViewed(msg)}
+                                                        />
+                                                        <div className="flex gap-2 justify-end">
+                                                            <a
+                                                                href={msg.fileUrl}
+                                                                download={`voice-message-${msg.id}.webm`}
+                                                                className="bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded text-sm font-bold text-center transition-colors flex-1"
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
+                                                                Download
+                                                            </a>
+                                                            <button
+                                                                onClick={() => handleDelete(msg.id)}
+                                                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm font-bold transition-colors flex-1"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                        )}
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
                     </div>
-                )
-                }
+                )}
             </section>
         </div>
     );
