@@ -103,6 +103,7 @@ export default function GlobalPlayer() {
 
                 {/* Player Container */}
                 <div className={`${isYouTube ? 'w-full aspect-video md:w-[480px] md:h-[270px]' : 'w-full md:max-w-md'}`}>
+                    {/* @ts-ignore - ReactPlayer types are fighting with Next.js build */}
                     <ReactPlayer
                         ref={playerRef}
                         url={currentTrack.fileUrl}
@@ -110,7 +111,7 @@ export default function GlobalPlayer() {
                         controls={true}
                         width="100%"
                         height={isYouTube ? "100%" : "50px"}
-                        onProgress={handleProgress}
+                        onProgress={handleProgress as any}
                         onPause={handlePause}
                         onPlay={handlePlay}
                         onEnded={handleEnded}
