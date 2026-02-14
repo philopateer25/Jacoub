@@ -166,78 +166,79 @@ export default function UserDashboard() {
                                                             <div className="min-w-0">
                                                                 <div className="font-bold text-base md:text-lg truncate">{item.title}</div>
                                                                 {progress && (
-                                                                    { isCompleted?<span className = "text-green-400">Completed</span> : <span>{Math.round(progress.currentTime)}s listened</span>}
+                                                                    <div className="text-xs text-slate-400">
+                                                                        {isCompleted ? <span className="text-green-400">Completed</span> : <span>{Math.round(progress.currentTime)}s listened</span>}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                            )}
+                                                        {isCompleted && <span className="flex-shrink-0 text-green-500 text-xl font-bold">✓</span>}
                                                     </div>
-                                                </div>
-                                { isCompleted && <span className="flex-shrink-0 text-green-500 text-xl font-bold">✓</span> }
-                            </div>
 
-                                {/* Voice Recorder (Contextual) */}
-                                {
-                                    isPlaying && (
-                                        <div className="mt-4 pt-4 border-t border-slate-700 animate-fadeIn bg-slate-700/30 p-4 rounded">
-                                            <h4 className="font-bold text-sm mb-3">Ask a Question / Send Voice Note</h4>
-                                            <p className="text-xs text-slate-400 mb-2">Recording for: {item.title}</p>
-                                            <VoiceRecorder trackId={item.id} />
-                                        </div>
-                                    )
-                                }
-                            </div>
-                        );
+                                                    {/* Voice Recorder (Contextual) */}
+                                                    {
+                                                        isPlaying && (
+                                                            <div className="mt-4 pt-4 border-t border-slate-700 animate-fadeIn bg-slate-700/30 p-4 rounded">
+                                                                <h4 className="font-bold text-sm mb-3">Ask a Question / Send Voice Note</h4>
+                                                                <p className="text-xs text-slate-400 mb-2">Recording for: {item.title}</p>
+                                                                <VoiceRecorder trackId={item.id} />
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
+                                            );
                                         } else if (item.type === 'QUESTION') {
                                             return (
-                        <div key={item.id} className="bg-slate-800 border border-blue-900/50 rounded-lg p-4 md:p-6 hover:border-blue-700 transition-colors">
-                            <div className="flex flex-col md:flex-row gap-4">
-                                <div className="hidden md:block text-blue-400 font-bold text-xl">?</div>
-                                <div className="flex-1 space-y-3">
-                                    <div className="flex gap-2 items-start">
-                                        <div className="md:hidden text-blue-400 font-bold text-lg">?</div>
-                                        <p className="text-base md:text-lg font-medium text-slate-200">{item.text}</p>
-                                    </div>
-                                    <div className="flex flex-col md:flex-row gap-2">
-                                        <input
-                                            disabled={submitted[item.id]}
-                                            value={answers[item.id] || ''}
-                                            onChange={e => handleAnswerChange(item.id, e.target.value)}
-                                            className="flex-1 bg-slate-900 border border-slate-600 rounded px-4 py-2 text-sm focus:border-blue-500 outline-none w-full"
-                                            placeholder="Type your answer here..."
-                                        />
-                                        {!submitted[item.id] ? (
-                                            <button
-                                                onClick={() => submitAnswer(item.id)}
-                                                disabled={submitting[item.id]}
-                                                className="bg-blue-600 px-6 py-2 rounded text-sm font-bold hover:bg-blue-700 disabled:opacity-50 w-full md:w-auto"
-                                            >
-                                                {submitting[item.id] ? '...' : 'Submit'}
-                                            </button>
-                                        ) : (
-                                            <span className="text-green-400 text-sm font-bold self-center px-4">✓ Answered</span>
-                                        )}
-                                    </div>
+                                                <div key={item.id} className="bg-slate-800 border border-blue-900/50 rounded-lg p-4 md:p-6 hover:border-blue-700 transition-colors">
+                                                    <div className="flex flex-col md:flex-row gap-4">
+                                                        <div className="hidden md:block text-blue-400 font-bold text-xl">?</div>
+                                                        <div className="flex-1 space-y-3">
+                                                            <div className="flex gap-2 items-start">
+                                                                <div className="md:hidden text-blue-400 font-bold text-lg">?</div>
+                                                                <p className="text-base md:text-lg font-medium text-slate-200">{item.text}</p>
+                                                            </div>
+                                                            <div className="flex flex-col md:flex-row gap-2">
+                                                                <input
+                                                                    disabled={submitted[item.id]}
+                                                                    value={answers[item.id] || ''}
+                                                                    onChange={e => handleAnswerChange(item.id, e.target.value)}
+                                                                    className="flex-1 bg-slate-900 border border-slate-600 rounded px-4 py-2 text-sm focus:border-blue-500 outline-none w-full"
+                                                                    placeholder="Type your answer here..."
+                                                                />
+                                                                {!submitted[item.id] ? (
+                                                                    <button
+                                                                        onClick={() => submitAnswer(item.id)}
+                                                                        disabled={submitting[item.id]}
+                                                                        className="bg-blue-600 px-6 py-2 rounded text-sm font-bold hover:bg-blue-700 disabled:opacity-50 w-full md:w-auto"
+                                                                    >
+                                                                        {submitting[item.id] ? '...' : 'Submit'}
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="text-green-400 text-sm font-bold self-center px-4">✓ Answered</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })}
                                 </div>
                             </div>
-                        </div>
-                        );
-                                        }
-                        return null;
-                                    })}
+                        )
+                        }
+                    </div >
+                ))
+                }
+            </div >
+            {
+                weeks.length === 0 && !loading && (
+                    <div className="text-center p-8 text-slate-500">
+                        No content available.
                     </div>
-        </div>
-            )
-}
-        </div >
-    ))
-}
-        </div >
-{
-    weeks.length === 0 && !loading && (
-        <div className="text-center p-8 text-slate-500">
-            No content available.
-        </div>
-    )
-}
+                )
+            }
         </div >
     );
 }
