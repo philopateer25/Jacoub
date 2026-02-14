@@ -2,14 +2,15 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-id: string;
-title: string;
-fileUrl: string;
-type ?: 'AUDIO' | 'YOUTUBE';
-progress ?: {
-    currentTime: number;
-    completed: boolean;
-}
+interface Track {
+    id: string;
+    title: string;
+    fileUrl: string;
+    type?: 'AUDIO' | 'YOUTUBE';
+    progress?: {
+        currentTime: number;
+        completed: boolean;
+    }
 }
 
 interface PlayerContextType {
