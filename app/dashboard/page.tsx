@@ -154,7 +154,8 @@ export default function UserDashboard() {
                                                         onClick={() => playTrack({
                                                             id: item.id,
                                                             title: item.title || 'Unknown Track',
-                                                            fileUrl: item.fileUrl || ''
+                                                            fileUrl: item.fileUrl || '',
+                                                            type: item.type === 'TRACK' ? (item as any).type : 'AUDIO' // The item.type is 'TRACK' (content type), but the track object itself has a 'type' property (AUDIO/YOUTUBE). We need to get that.
                                                         })}
                                                         className="cursor-pointer flex items-center justify-between mb-4 gap-4"
                                                     >

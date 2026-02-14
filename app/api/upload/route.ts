@@ -9,17 +9,32 @@ export async function POST(req: NextRequest) {
         const title = formData.get('title') as string;
         const weekId = formData.get('weekId') as string;
 
-        if (!file || !title || !weekId) {
-            return NextResponse.json(
-                { error: 'File, title, and weekId are required' },
-                { status: 400 }
-            );
-        }
+        const type = (formData.get('type') as 'AUDIO' | 'YOUTUBE') || 'AUDIO';
+        const url = formData.get('url') as string;
 
-        // 1. Upload to Vercel Blob
-        const blob = await put(file.name, file, {
-            access: 'public',
-        });
+        let finalUrl = '';
+
+        if (type === 'YOUTUBE') {
+            if (!url) {
+                return NextResponse.json(
+                    { error: 'YouTube URL is required' },
+                    { status: 400 }
+                );
+            }
+            finalUrl = url;
+        } else {
+            if (!file) {
+                return NextResponse.json(
+                    { error: 'File is required for Audio tracks' },
+                    { status: 400 }
+                );
+            }
+            // 1. Upload to Vercel Blob
+            const blob = await put(file.name, file, {
+                access: 'public',
+            });
+            finalUrl = blob.url;
+        }
 
         // 2. Save to Database
         // Get current max order for the week to append at the end
@@ -33,7 +48,8 @@ export async function POST(req: NextRequest) {
         const track = await prisma.audioTrack.create({
             data: {
                 title,
-                fileUrl: blob.url,
+                fileUrl: finalUrl,
+                type,
                 weekId,
                 order: newOrder,
             },

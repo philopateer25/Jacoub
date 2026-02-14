@@ -14,8 +14,11 @@ export default function UploadPage() {
     const [uploadType, setUploadType] = useState<'TRACK' | 'QUESTION'>('TRACK');
 
     // Track State
+    const [trackSource, setTrackSource] = useState<'AUDIO' | 'YOUTUBE'>('AUDIO');
     const [file, setFile] = useState<File | null>(null);
     const [title, setTitle] = useState('');
+    const [url, setUrl] = useState('');
+
 
     // Question State
     const [questionText, setQuestionText] = useState('');
@@ -37,12 +40,20 @@ export default function UploadPage() {
 
         try {
             if (uploadType === 'TRACK') {
-                if (!file || !title) return alert('File and title required');
+                if (!title) return alert('Title is required');
 
                 const formData = new FormData();
-                formData.append('file', file);
                 formData.append('title', title);
                 formData.append('weekId', selectedWeek);
+                formData.append('type', trackSource);
+
+                if (trackSource === 'AUDIO') {
+                    if (!file) return alert('File required for audio');
+                    formData.append('file', file);
+                } else {
+                    if (!url) return alert('URL required for YouTube');
+                    formData.append('url', url);
+                }
 
                 const res = await fetch('/api/upload', {
                     method: 'POST',
@@ -139,7 +150,34 @@ export default function UploadPage() {
                 </div>
 
                 {uploadType === 'TRACK' ? (
-                    <>
+                    <div className="space-y-6">
+                        {/* content type selector within TRACK */}
+                        <div>
+                            <label className="block text-slate-300 mb-2">Track Source</label>
+                            <div className="flex gap-4">
+                                <label className="flex items-center gap-2 cursor-pointer bg-slate-700 px-4 py-2 rounded">
+                                    <input
+                                        type="radio"
+                                        name="trackSource"
+                                        checked={trackSource === 'AUDIO'}
+                                        onChange={() => setTrackSource('AUDIO')}
+                                        className="w-4 h-4 text-blue-500"
+                                    />
+                                    <span>Upload Audio File</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer bg-slate-700 px-4 py-2 rounded">
+                                    <input
+                                        type="radio"
+                                        name="trackSource"
+                                        checked={trackSource === 'YOUTUBE'}
+                                        onChange={() => setTrackSource('YOUTUBE')}
+                                        className="w-4 h-4 text-blue-500"
+                                    />
+                                    <span>YouTube URL</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div>
                             <label className="block text-slate-300 mb-2">Track Title</label>
                             <input
@@ -147,19 +185,33 @@ export default function UploadPage() {
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 className="w-full p-3 rounded bg-slate-900 border border-slate-600 focus:border-blue-500 outline-none"
-                                placeholder="e.g. Lesson 1 Audio"
+                                placeholder="e.g. Lesson 1"
                             />
                         </div>
-                        <div>
-                            <label className="block text-slate-300 mb-2">Audio File</label>
-                            <input
-                                type="file"
-                                accept="audio/*"
-                                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                className="w-full p-3 rounded bg-slate-900 border border-slate-600 focus:border-blue-500 outline-none"
-                            />
-                        </div>
-                    </>
+
+                        {trackSource === 'AUDIO' ? (
+                            <div>
+                                <label className="block text-slate-300 mb-2">Audio File</label>
+                                <input
+                                    type="file"
+                                    accept="audio/*"
+                                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                    className="w-full p-3 rounded bg-slate-900 border border-slate-600 focus:border-blue-500 outline-none"
+                                />
+                            </div>
+                        ) : (
+                            <div>
+                                <label className="block text-slate-300 mb-2">YouTube URL</label>
+                                <input
+                                    type="text"
+                                    value={url}
+                                    onChange={(e) => setUrl(e.target.value)}
+                                    className="w-full p-3 rounded bg-slate-900 border border-slate-600 focus:border-blue-500 outline-none"
+                                    placeholder="https://www.youtube.com/watch?v=..."
+                                />
+                            </div>
+                        )}
+                    </div>
                 ) : (
                     <div>
                         <label className="block text-slate-300 mb-2">Question Text</label>

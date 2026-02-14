@@ -30,11 +30,17 @@ model Week {
   courseId  String?      // keeping for now if we revert, but unused
 }
 
+enum TrackType {
+  AUDIO
+  YOUTUBE
+}
+
 model AudioTrack {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   title     String
+  type      TrackType @default(AUDIO)
   fileUrl   String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   
   weekId    String?
   week      Week?    @relation(fields: [weekId], references: [id], onDelete: Cascade)
