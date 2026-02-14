@@ -118,7 +118,7 @@ export default function GlobalPlayer() {
                         config={{
                             youtube: {
                                 playerVars: { showinfo: 1 }
-                            },
+                            } as any,
                         }}
                         style={!isYouTube ? { maxHeight: '50px' } : {}}
                     />
