@@ -13,7 +13,7 @@ export async function GET() {
 
         // Transform to mixed content list
         const weeksWithContent = weeks.map(week => {
-            const tracks = week.tracks.map(t => ({ ...t, type: 'TRACK' }));
+            const tracks = week.tracks.map(t => ({ ...t, mediaType: t.type, type: 'TRACK' }));
             const questions = week.questions.map(q => ({ ...q, type: 'QUESTION' }));
 
             // Combine and sort by order
