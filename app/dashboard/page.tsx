@@ -152,12 +152,18 @@ export default function UserDashboard() {
                                                 <div key={item.id} className="bg-slate-800 border border-slate-700 rounded-lg p-4">
                                                     {/* Track Header */}
                                                     <div
-                                                        onClick={() => playTrack({
-                                                            id: item.id,
-                                                            title: item.title || 'Unknown Track',
-                                                            fileUrl: item.fileUrl || '',
-                                                            type: item.mediaType || 'AUDIO'
-                                                        })}
+                                                        onClick={() => {
+                                                            if (item.mediaType === 'YOUTUBE') {
+                                                                window.open(item.fileUrl, '_blank');
+                                                            } else {
+                                                                playTrack({
+                                                                    id: item.id,
+                                                                    title: item.title || 'Unknown Track',
+                                                                    fileUrl: item.fileUrl || '',
+                                                                    type: 'AUDIO'
+                                                                });
+                                                            }
+                                                        }}
                                                         className="cursor-pointer flex items-center justify-between mb-4 gap-4"
                                                     >
                                                         <div className="flex items-center gap-3 md:gap-4 overflow-hidden">

@@ -3,26 +3,29 @@
 
 import { usePlayer } from './PlayerProvider';
 import { useEffect, useRef, useState } from 'react';
-import ReactPlayer from 'react-player';
 
 export default function GlobalPlayer() {
     const { currentTrack } = usePlayer();
-    const playerRef = useRef<any>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
     const [progress, setProgress] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
 
     // When track changes, reset and play
     useEffect(() => {
         setIsPlaying(true);
+        if (audioRef.current && currentTrack) {
+            audioRef.current.play().catch(e => console.error("Play failed", e));
+        }
     }, [currentTrack]);
 
-    const handleProgress = (state: any) => {
-        setProgress(state.playedSeconds);
-        // Save progress logic could be debounced here
+    const handleTimeUpdate = () => {
+        if (audioRef.current) {
+            setProgress(audioRef.current.currentTime);
+        }
     };
 
     const saveProgress = async () => {
-        if (!currentTrack || !playerRef.current) return;
+        if (!currentTrack || !audioRef.current) return;
 
         const userId = localStorage.getItem('userId');
         if (!userId) return;
@@ -34,8 +37,8 @@ export default function GlobalPlayer() {
                 body: JSON.stringify({
                     userId,
                     audioTrackId: currentTrack.id,
-                    progress: playerRef.current.getCurrentTime(),
-                    completed: false // We mark completed onEnded
+                    progress: audioRef.current.currentTime,
+                    completed: false
                 })
             });
         } catch (e) {
@@ -54,6 +57,7 @@ export default function GlobalPlayer() {
 
     const handleEnded = async () => {
         if (!currentTrack) return;
+        setIsPlaying(false);
         const userId = localStorage.getItem('userId');
         if (!userId) return;
 
@@ -80,49 +84,46 @@ export default function GlobalPlayer() {
     }, [currentTrack, isPlaying]);
 
     // Seek on load
-    const handleReady = () => {
-        if (currentTrack?.progress?.currentTime && playerRef.current) {
-            playerRef.current.seekTo(currentTrack.progress.currentTime);
+    const handleLoadedMetadata = () => {
+        if (currentTrack?.progress?.currentTime && audioRef.current) {
+            audioRef.current.currentTime = currentTrack.progress.currentTime;
+        }
+        if (isPlaying && audioRef.current) {
+            audioRef.current.play().catch(console.error);
         }
     };
 
     if (!currentTrack) return null;
 
-    const isYouTube = currentTrack.type === 'YOUTUBE';
+    // Safety check: If it's a YouTube track, we shouldn't be playing it here anymore.
+    // But if one slips through, we just render null.
+    if (currentTrack.type === 'YOUTUBE') return null;
 
     return (
-        <div className={`fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 shadow-2xl text-white z-50 transition-all duration-300 ${isYouTube ? 'h-auto p-0 md:p-4' : 'p-2 md:p-4'}`}>
-            <div className={`mx-auto flex ${isYouTube ? 'flex-col md:flex-row items-start md:items-center' : 'flex-col md:flex-row items-center'} gap-2 md:gap-4 max-w-6xl`}>
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 shadow-2xl text-white z-50 p-2 md:p-4 transition-all duration-300">
+            <div className="mx-auto flex flex-col md:flex-row items-center gap-2 md:gap-4 max-w-6xl">
 
                 {/* Track Info */}
-                <div className={`w-full md:flex-1 text-center md:text-left truncate px-2 ${isYouTube ? 'py-2 md:py-0' : ''}`}>
+                <div className="w-full md:flex-1 text-center md:text-left truncate px-2">
                     <h3 className="font-bold text-base md:text-lg truncate">{currentTrack.title}</h3>
                     <p className="text-xs md:text-sm text-slate-400">
-                        {isYouTube ? 'Playing Video' : 'Playing Audio'}
+                        Playing Audio
                     </p>
                 </div>
 
                 {/* Player Container */}
-                <div className={`${isYouTube ? 'w-full aspect-video md:w-[480px] md:h-[270px]' : 'w-full md:max-w-md'}`}>
-                    {/* @ts-ignore - ReactPlayer types are fighting with Next.js build */}
-                    <ReactPlayer
-                        ref={playerRef}
-                        url={currentTrack.fileUrl}
-                        playing={isPlaying}
-                        controls={true}
-                        width="100%"
-                        height={isYouTube ? "100%" : "50px"}
-                        onProgress={handleProgress as any}
+                <div className="w-full md:max-w-md">
+                    <audio
+                        ref={audioRef}
+                        src={currentTrack.fileUrl}
+                        controls
+                        className="w-full h-10 md:h-12 block"
+                        onTimeUpdate={handleTimeUpdate}
                         onPause={handlePause}
                         onPlay={handlePlay}
                         onEnded={handleEnded}
-                        onReady={handleReady}
-                        config={{
-                            youtube: {
-                                playerVars: { showinfo: 1 }
-                            } as any,
-                        }}
-                        style={!isYouTube ? { maxHeight: '50px' } : {}}
+                        onLoadedMetadata={handleLoadedMetadata}
+                        autoPlay
                     />
                 </div>
             </div>
