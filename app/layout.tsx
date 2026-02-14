@@ -15,6 +15,26 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Jacoub",
   description: "Audio Learning Platform",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Jacoub",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  icons: {
+    icon: "/icons/icon.jpg",
+    apple: "/icons/icon.jpg",
+  },
+};
+
+export const viewport = {
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
