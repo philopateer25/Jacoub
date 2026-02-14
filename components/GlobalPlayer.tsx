@@ -15,7 +15,7 @@ export default function GlobalPlayer() {
         setIsPlaying(true);
     }, [currentTrack]);
 
-    const handleProgress = (state: { playedSeconds: number }) => {
+    const handleProgress = (state: any) => {
         setProgress(state.playedSeconds);
         // Save progress logic could be debounced here
     };
