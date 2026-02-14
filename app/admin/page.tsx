@@ -165,15 +165,16 @@ export default function AdminDashboard() {
                                                         </button>
                                                     </div>
                                                 </div>
-                                            ))}
                                             </div>
-                                        )}
+                                        ))}
                                     </div>
-                                    );
-                        })}
+                                        )}
                                 </div>
-                            )
-                        }
+                            );
+                        })}
+                    </div>
+                )
+                }
             </section>
         </div>
     );

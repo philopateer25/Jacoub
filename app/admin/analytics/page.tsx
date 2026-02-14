@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 interface Track {
     id: string;
     title: string;
+    type: 'AUDIO' | 'YOUTUBE';
     week?: {
         title: string;
         course: { title: string };
@@ -31,7 +32,9 @@ export default function AnalyticsPage() {
         fetch('/api/tracks')
             .then(res => res.json())
             .then(data => {
-                setTracks(data);
+                // Filter out YouTube tracks as we can't track them
+                const audioOnly = (data as Track[]).filter(t => t.type !== 'YOUTUBE');
+                setTracks(audioOnly);
                 setLoadingTracks(false);
             })
             .catch(console.error);
@@ -70,8 +73,8 @@ export default function AnalyticsPage() {
                                     key={track.id}
                                     onClick={() => setSelectedTrackId(track.id)}
                                     className={`w-full text-left p-3 rounded transition-colors ${selectedTrackId === track.id
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                                         }`}
                                 >
                                     <div className="font-semibold">{track.title}</div>
