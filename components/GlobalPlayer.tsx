@@ -87,7 +87,7 @@ export default function GlobalPlayer() {
 
     if (!currentTrack) return null;
 
-    const isYouTube = currentTrack.type === 'YOUTUBE' || ReactPlayer.canPlay(currentTrack.fileUrl);
+    const isYouTube = currentTrack.type === 'YOUTUBE';
 
     return (
         <div className={`fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 shadow-2xl text-white z-50 transition-all duration-300 ${isYouTube ? 'h-auto p-0 md:p-4' : 'p-2 md:p-4'}`}>
